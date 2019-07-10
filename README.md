@@ -5,4 +5,9 @@ right now we are taking speed as the speed limits of the road given by google ap
 
 .
 .
-route data: location points of 2 different routes between pune and mumbai (which is our test trip)
+route data: location points of 2 different routes between pune and mumbai (which is our test trip).
+.
+.
+.
+data: velocity and acceleration data
+
