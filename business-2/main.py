@@ -1,15 +1,27 @@
 import requests
 import json
 import math
+import logging
+
 Key = 'AIzaSyAq0dLp59Cpk6deLTQpeluwMIwo3xrW_B0'
 #Store google maps api url in a variable
 #url = 'https://maps.googleapis.com/maps/api/distancematrix/json?'
-# call get method of request module and store respose object
+# call get method of requests module and store respose object
 #r = requests.get(url + 'origins=' + 'pune' + '&destinations=' + 'mumbai' + '&key=' + apiKey)
 #Get json format result from the above response object
 #res = r.json()
 #print the value of res
 #distance = res['rows'][0]['elements'][0]['distance']['value']
+def getDistance(origin, destination):
+        url = 'https://maps.googleapis.com/maps/api/distancematrix/json?'
+        r = requests.get(url + 'origins=' + origin + '&destinations=' + destination + '&key=' + Key)
+        res = r.json()
+        distance = res['rows'][0]['elements'][0]['distance']['value']
+        if distance:
+                distanceKm = str(round(distance/1000, 2))
+                return distanceKm
+        else: 
+                return 'Can not determine'
 def getLocs(apiKey):
     lats=[]
     longs=[]
@@ -75,7 +87,7 @@ def Power_Required(wind_speed,velocity, cos_theta, sin_theta, acceleration):  # 
         return P_req
 
 angle_array=getTheta(Key)
-print(angle_array)
+# print(angle_array)
 w_speed=getWind()
 #print(w_speed)
 #p=0

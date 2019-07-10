@@ -1,23 +1,229 @@
 {% include 'header.html' %}
+<style>
+    /* Always set the map height explicitly to define the size of the div
+                       * element that contains the map. */
+                       .content {
+                           margin-top: 50px;
+                           padding: 0;
+                       }
+                      #map {
+                        height: 100%;
+                      }
+                      /* Optional: Makes the sample page fill the window. */
+                      #mapCont {
+                        height: calc(100vh - 50px);
+                        margin: 0;
+                        padding: 0;
+                        width: 100%;
+                        position: relative;
+                      }
+                      .controls {
+                        margin-top: 10px;
+                        border: 1px solid transparent;
+                        border-radius: 2px 0 0 2px;
+                        box-sizing: border-box;
+                        -moz-box-sizing: border-box;
+                        height: 32px;
+                        outline: none;
+                        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+                      }
+                
+                      #origin-input,
+                      #destination-input,
+                      #soc-input {
+                        background-color: #fff;
+                        font-family: Roboto;
+                        font-size: 15px;
+                        font-weight: 300;
+                        margin-left: 12px;
+                        padding: 0 11px 0 13px;
+                        text-overflow: ellipsis;
+                        width: 220px;
+                      }
+                      #soc-input {
+                          display: block;
+                          position: absolute;
+                          top: 0;
+                          left: 0;
+                          z-index: 99999;
+                      }
 
-    <section class="content">
-        <form action="/action_page.php">
-            First name:<br>
-            <input type="text" name="Origin" value="Pune">
-            <br>
-            Last name:<br>
-            <input type="text" name="Destination" value="Mumbai">
-            <br><br>
-            <input type="submit" value="Submit">
-            </form>
-    </section>
-     
-	<!-- Content 1 -->
-    <section id="performance"  class="content">
-        <div class="container">
-                <iframe width="100%" height="450" frameborder="0" style="border:0"
-                src="https://www.google.com/maps/embed/v1/directions?origin=pune&destination=mumbai&key=AIzaSyAq0dLp59Cpk6deLTQpeluwMIwo3xrW_B0" allowfullscreen></iframe>
+                      #origin-input {
+                          top: 40px !important;
+                          left: 0 !important;
+                      }
+                      #destination-input{
+                        top: 80px !important;
+                        left: 0 !important;
+                      }
+                      #origin-input:focus,
+                      #destination-input:focus,
+                      #soc-input:focus {
+                        border-color: #4d90fe;
+                      }
+                      #submit {
+                        display: block;
+                        position: absolute;
+                        top: 132px;
+                        left: 12px;
+                        z-index: 9;
+                    }
+</style>
+
+    <section class="content" >
+        <form method="post" class="container" id="mapCont">
+            
+                <input id="soc-input" class="controls" type="text"
+                placeholder="Inital Charge Of battery" name='soc' value="{{data.soc}}">
+                <!-- Google maps stuff don't touch -->
+                <div style="display: none">
+                    <input id="origin-input" class="controls" type="text"
+                        placeholder="Enter an origin location" name='origin' value="{{data.origin}}">
+            
+                    <input id="destination-input" class="controls" type="text"
+                        placeholder="Enter a destination location" name='destination' value="{{data.destination}}">
+                </div>
+                
+            <div id="map"></div>
+            <input id="submit" type="submit">
+        </form>
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog">
+            
+                <!-- Modal content-->
+                <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Modal Header</h4>
+                </div>
+                <div class="modal-body">
+                    <p>{{ returnData.distance }}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+                </div>
+                
+            </div>
         </div>
+            {{data.origin}}
+            {{data.destination}}
+            {{data.soc}}
+            {{ returnData.distance }}
     </section>
+    {% if returnData %}
+    <script>$("#myModal").modal();</script>
+    {% endif %}
+    <script>
+    // This example requires the Places library. Include the libraries=places
+    // parameter when you first load the API. For example:
+    // <script
+    // src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+    
+    function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+        mapTypeControl: false,
+        center: {lat: -33.8688, lng: 151.2195},
+        zoom: 13
+        });
+    
+        new AutocompleteDirectionsHandler(map);
+    }
+    
+    /**
+        * @constructor
+        */
+    function AutocompleteDirectionsHandler(map) {
+        this.map = map;
+        this.originPlaceId = null;
+        this.destinationPlaceId = null;
+        this.travelMode = 'DRIVING';
+        this.directionsService = new google.maps.DirectionsService;
+        this.directionsDisplay = new google.maps.DirectionsRenderer;
+        this.directionsDisplay.setMap(map);
+    
+        var originInput = document.getElementById('origin-input');
+        var destinationInput = document.getElementById('destination-input');
+    
+        var originAutocomplete = new google.maps.places.Autocomplete(originInput);
+        // Specify just the place data fields that you need.
+        originAutocomplete.setFields(['place_id']);
+    
+        var destinationAutocomplete =
+            new google.maps.places.Autocomplete(destinationInput);
+        // Specify just the place data fields that you need.
+        destinationAutocomplete.setFields(['place_id']);
+    
+        this.setupPlaceChangedListener(originAutocomplete, 'ORIG');
+        this.setupPlaceChangedListener(destinationAutocomplete, 'DEST');
+    
+        this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(originInput);
+        this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(
+            destinationInput);
+        var originPlace = "{{ data.origin }}";
+        var destinationPlace = "{{ data.destination }}";
+
+        if (originPlace)
+            this.originPlaceId = originPlace
+        if (destinationPlace)
+            this.destinationPlaceId = destinationPlace;
+        this.route();
+
+    }
+    
+    // Sets a listener on a radio button to change the filter type on Places
+    // Autocomplete.
+    
+    AutocompleteDirectionsHandler.prototype.setupPlaceChangedListener = function(
+        autocomplete, mode) {
+        var me = this;
+        autocomplete.bindTo('bounds', this.map);
+        var place = autocomplete.getPlace();
+    
+        autocomplete.addListener('place_changed', function() {
+        var place = autocomplete.getPlace();
+        var originPlace = "{{ data.origin }}";
+        var destinationPlace = "{{ data.destination }}";
+    
+        if (!place.name && !originPlace && !destinationPlace) {
+
+            window.alert('Please select an option from the dropdown list.');
+            return;
+        }
+        if (mode === 'ORIG') {
+            me.originPlaceId = place.place_id ? place.place_id : originPlace;
+        } else {
+            me.destinationPlaceId = place.place_id ? place.place_id : destinationPlace;
+        }
+        me.route();
+        });
+    };
+    
+    AutocompleteDirectionsHandler.prototype.route = function() {
+        if (!this.originPlaceId || !this.destinationPlaceId) {
+        return;
+        }
+        var me = this;
+    
+        this.directionsService.route(
+            {
+                origin: this.originPlaceId,
+                destination: this.destinationPlaceId,
+                travelMode: this.travelMode
+            },
+            function(response, status) {
+            if (status === 'OK') {
+                me.directionsDisplay.setDirections(response);
+            } else {
+                window.alert('Directions request failed due to ' + status);
+            }
+            });
+    };
+    
+        </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKQKeoloSR85L9RDnSTuvZY13wStTHp3E&libraries=places&callback=initMap"
+            async defer></script>
+    <!-- <iframe width="100%" height="450" frameborder="0" style="border:0"
+    src="https://www.google.com/maps/embed/v1/directions?origin=pune&destination=mumbai&key=AIzaSyAq0dLp59Cpk6deLTQpeluwMIwo3xrW_B0" allowfullscreen></iframe> -->
         	
 {% include 'footer.html' %}
