@@ -9,5 +9,7 @@ route data: location points of 2 different routes between pune and mumbai (which
 .
 .
 .
-data: velocity and acceleration data
-
+data: velocity and acceleration data.
+.
+.
+re - return SOC for given power (power will be called for each step and not the whole array) so while displaying cumulative SOC we have to add all the discharge % and subtract it from initial SOC
