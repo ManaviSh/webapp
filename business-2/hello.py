@@ -3,10 +3,10 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-   return render_template('index.html')
+   return render_template('index.html', active='home')
 @app.route('/map')
 def map():
-   return render_template('map.html')
+   return render_template('map.html', active='map')
 
 if __name__ == '__main__':
    app.run(debug = True)
