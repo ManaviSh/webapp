@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from main import getLocs, getDistance
+from main import getData
 app = Flask(__name__)
 
 @app.route('/')
@@ -17,7 +17,7 @@ def map():
         formData['origin'] = request.form.get('origin')  # access the data inside 
         formData['destination'] = request.form.get('destination')
         formData['soc'] = request.form.get('soc')
-        returnData['distance'] = getDistance(formData['origin'], formData['destination'])
+        returnData = getData(formData['origin'], formData['destination'])
    return render_template('map.html', active='map', data=formData, returnData=returnData)
 
 if __name__ == '__main__':

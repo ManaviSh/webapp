@@ -12,16 +12,20 @@ Key = 'AIzaSyAq0dLp59Cpk6deLTQpeluwMIwo3xrW_B0'
 #res = r.json()
 #print the value of res
 #distance = res['rows'][0]['elements'][0]['distance']['value']
-def getDistance(origin, destination):
+def getData(origin, destination):
+        distance = getDistance(origin, destination, Key)
+        speed = getSpeed(Key) 
+        return {
+                 "distance": str(round(distance/1000, 2)) if distance else 'Can not determine',
+                 "speed": speed,
+                #  keep adding whatever data there is "key"
+        }
+def getDistance(origin, destination, apiKey):
         url = 'https://maps.googleapis.com/maps/api/distancematrix/json?'
-        r = requests.get(url + 'origins=' + origin + '&destinations=' + destination + '&key=' + Key)
+        r = requests.get(url + 'origins=' + origin + '&destinations=' + destination + '&key=' + apiKey)
         res = r.json()
         distance = res['rows'][0]['elements'][0]['distance']['value']
-        if distance:
-                distanceKm = str(round(distance/1000, 2))
-                return distanceKm
-        else: 
-                return 'Can not determine'
+        return distance
 def getLocs(apiKey):
     lats=[]
     longs=[]

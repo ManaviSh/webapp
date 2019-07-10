@@ -45,7 +45,7 @@
                           position: absolute;
                           top: 0;
                           left: 0;
-                          z-index: 99999;
+                          z-index: 9;
                       }
 
                       #origin-input {
@@ -94,10 +94,10 @@
                 <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Modal Header</h4>
+                    <h4 class="modal-title">Calculated</h4>
                 </div>
                 <div class="modal-body">
-                    <p>{{ returnData.distance }}</p>
+                    <p>Distance: {{ returnData.distance }} kilometers</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -111,10 +111,19 @@
             {{data.soc}}
             {{ returnData.distance }}
     </section>
+
+
+<!-- jQuery -->
+<script src="/static/js/jquery-1.11.3.min.js"></script>
     {% if returnData %}
-    <script>$("#myModal").modal();</script>
+    <script>
+            $(document).ready(function(){
+                  $("#myModal").modal();
+              });
+    </script>
     {% endif %}
     <script>
+
     // This example requires the Places library. Include the libraries=places
     // parameter when you first load the API. For example:
     // <script
@@ -147,12 +156,12 @@
     
         var originAutocomplete = new google.maps.places.Autocomplete(originInput);
         // Specify just the place data fields that you need.
-        originAutocomplete.setFields(['place_id']);
+        originAutocomplete.setFields(['name']);
     
         var destinationAutocomplete =
             new google.maps.places.Autocomplete(destinationInput);
         // Specify just the place data fields that you need.
-        destinationAutocomplete.setFields(['place_id']);
+        destinationAutocomplete.setFields(['name']);
     
         this.setupPlaceChangedListener(originAutocomplete, 'ORIG');
         this.setupPlaceChangedListener(destinationAutocomplete, 'DEST');
@@ -167,7 +176,8 @@
             this.originPlaceId = originPlace
         if (destinationPlace)
             this.destinationPlaceId = destinationPlace;
-        this.route();
+        if (this.originPlaceId && this.destinationPlaceId)
+            this.route();
 
     }
     
@@ -191,9 +201,9 @@
             return;
         }
         if (mode === 'ORIG') {
-            me.originPlaceId = place.place_id ? place.place_id : originPlace;
+            me.originPlaceId = place.name ? place.name : originPlace;
         } else {
-            me.destinationPlaceId = place.place_id ? place.place_id : destinationPlace;
+            me.destinationPlaceId = place.name ? place.name : destinationPlace;
         }
         me.route();
         });
