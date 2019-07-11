@@ -101,7 +101,7 @@
                     <p>Duration: {{ returnData.duration}}</p>
                     <p>Energy Required: {{ returnData.energy }} kWh</p>
                     <p>Energy Available: {{ returnData.energyA }} kWh</p>
-                    {% if returnData.energyA < returnData.energy %}
+                    {% if returnData.energyA and returnData.energy and returnData.energyA < returnData.energy %}
                         <p> Map has been rerouted, close the modal and see the new route </p>
                     {% endif %}
                 </div>

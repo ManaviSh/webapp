@@ -18,7 +18,7 @@ def map():
         formData['destination'] = request.form.get('destination')
         formData['soc'] = request.form.get('soc')
         returnData = getData(formData['origin'], formData['destination'], formData['soc'])
-        if returnData['energyA'] < returnData['energy']:
+        if returnData['energyA'] and returnData['energy'] and returnData['energyA'] < returnData['energy']:
          returnData['waypoints'] = 'MH SH 79, Pali T. Waredi, Maharashtra' 
    return render_template('map.html', active='map', data=formData, returnData=returnData)
 
