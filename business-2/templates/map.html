@@ -101,10 +101,9 @@
                     <p>Duration: {{ returnData.duration}}</p>
                     <p>Energy Required: {{ returnData.energy }} kWh</p>
                     <p>Energy Available: {{ returnData.energyA }} kWh</p>
-                    <div class="container">
-                        <iframe width="100%" height="450" frameborder="0" style="border:0"
-                        src="https://maps.googleapis.com/maps/api/directions/json?origin=pune&destination=India&waypoints=via:MH SH 79, Pali T. Waredi, Maharashtra&departure_time=now&key=AIzaSyBKQKeoloSR85L9RDnSTuvZY13wStTHp3E" allowfullscreen></iframe>
-                    </div>
+                    {% if returnData.energyA < returnData.energy %}
+                        <p> Map has been rerouted, close the modal and see the new route </p>
+                    {% endif %}
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -221,13 +220,21 @@
         return;
         }
         var me = this;
+        var waypoint = "{{ returnData.waypoints }}";
+        var routeParam = {
+            origin: this.originPlaceId,
+            destination: this.destinationPlaceId,
+            travelMode: this.travelMode,
+        };
+        if(waypoint) {
+            routeParam.waypoints = [{location: "{{ returnData.waypoints }}"}];
+            routeParam.optimizeWaypoints = true
+        }
+        console.log(routeParam)
+            
     
         this.directionsService.route(
-            {
-                origin: this.originPlaceId,
-                destination: this.destinationPlaceId,
-                travelMode: this.travelMode
-            },
+            routeParam,
             function(response, status) {
             if (status === 'OK') {
                 me.directionsDisplay.setDirections(response);
