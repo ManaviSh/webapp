@@ -17,7 +17,7 @@ def map():
         formData['origin'] = request.form.get('origin')  # access the data inside 
         formData['destination'] = request.form.get('destination')
         formData['soc'] = request.form.get('soc')
-        returnData = getData(formData['origin'], formData['destination'])
+        returnData = getData(formData['origin'], formData['destination'], formData['soc'])
    return render_template('map.html', active='map', data=formData, returnData=returnData)
 
 if __name__ == '__main__':
